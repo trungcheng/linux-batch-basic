@@ -24,12 +24,44 @@ rsync
 - Tạo file đuôi .sh hoặc .bash đều ok
 
 # Vài ví dụ cơ bản
+- Các loại toán tử:
+```sh
+-lt <
+-gt >
+-le <=
+-ge >=
+-eq ==
+-ne !=
+```
+
+- Backup thư mục đơn giản:
+```sh
+#!/bin/bash
+tar -czf www.tar.gz /home/www​
+```
+
+- So sánh chuỗi:
+```sh
+#!/bin/bash
+#Define chuoi 1
+S1=”Chuoi thu nhat”
+#Define chuoi 2
+S2=”Chuoi thu hai”
+if [ $S1 = $S2 ]
+; then
+echo “Hai chuoi bang nhau”
+else
+echo “Hai chuoi khong bang nhau”
+fi​
+```
+
 - Start server A trên B khi A chết
 ```sh
 #!/bin/bash
 #neu dich vu tren server A chet thi start dich vu do tren Server B
 #o day vi du la dich vu httpd
 #host A da ssh ko hoi password bang host B va nguoc lai
+#use "`<command shell in here>`" để thực thi một command
 while [ 1 ]
 do
 status=`ps -ef | grep httpd | grep -v grep | wc -l`
@@ -56,6 +88,32 @@ for i in `seq 149 150`
 do
 scp /root/.ssh/authorized_keys 192.168.75.$i:/root/.ssh/
 done
+```
+
+- Backup MYSQL trên server Linux
+```sh
+#!/bin/bash
+echo Starting Backup
+mysqldump web_data > /backup/database/web_data_`date +%e-%m-%y`.sql
+echo Backup Finished​
+```
+
+- Exit code:
+```sh
+#!/bin/bash
+#Create new file
+touch /root/hidden_diary 2> /dev/null
+#$? la exit code - return 0 or 1 (0 - success, 1 - failed)
+if [ $? -eq 0 ]
+then
+  echo "Yeahhh!!!"
+  #return value
+  exit 0
+else
+  echo "Oh no, could not create file..." >&2
+  #return value
+  exit 1
+fi
 ```
 
 - Auto deployment laravel project to server
@@ -131,4 +189,4 @@ etc/init.d/crond restart
 rsync -avzhe ssh backup.tar root@192.168.0.100:/backups/ --exclude example.txt
 ```
 - Thực thi: ./tên-file-bash
-- Nhớ chmod 644 cho nó
+- Nhớ chmod 755 cho nó
