@@ -101,7 +101,7 @@ echo Backup Finished​
 - Exit code:
 ```sh
 #!/bin/bash
-#Create new file
+#Create new file and chuyen huong loi sang thu muc /dev/null
 touch /root/hidden_diary 2> /dev/null
 #$? la exit code - return 0 or 1 (0 - success, 1 - failed)
 if [ $? -eq 0 ]
