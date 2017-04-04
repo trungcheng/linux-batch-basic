@@ -58,15 +58,38 @@ scp /root/.ssh/authorized_keys 192.168.75.$i:/root/.ssh/
 done
 ```
 
-- Sau khi deploy laravel lên server
+- Auto deployment laravel project to server
 ```sh
-#!/bin/sh
-composer install
-# phân quyền thư mục
-chmod -R ugo+rwx storage/ bootstrap/cache/
-php artisan migrate
-php artisan config:cache
-php artisan view:clear
+#!/bin/bash
+SERVER_IP="127.0.0.1"
+SERVER_SITE_PATH="/var/www/example/dev/"
+SERVER_USERNAME="ec2-user"
+
+(>&2 echo "This script will deploy the application to staging. Please be mindful while doing this!")
+(>&2 echo -n "Please confirm that you really want to deploy the current codebase to staging [y/N]: ")
+read confirmation
+
+if [[ $confirmation = 'y' || $confirmation = 'Y' ]]
+    then
+        (>&2 echo "The current codebase will now be deployed to the staging environment!")
+    	# run composer
+     	(>&2 echo "Attempting to run composer...")
+     	APP_ENV="staging" composer install --no-dev
+     	# fix rights to storage directory
+     	ssh $SERVER_USERNAME@$SERVER_IP "sudo chown -R ec2-user:apache $SERVER_SITE_PATH/releases/$DIRECTORY_NAME"
+     	# provide .env file
+     	(>&2 echo "Attempting to make a symlink to the .env file in the project directory...")
+     	ssh $SERVER_USERNAME@$SERVER_IP "ln -s $SERVER_SITE_PATH/.env $SERVER_SITE_PATH/releases/$DIRECTORY_NAME/.env"
+     	# show current version
+     	(>&2 echo "Attempting to show the current version...")
+     	ssh $SERVER_USERNAME@$SERVER_IP "ls -lah $SERVER_SITE_PATH/current"
+     	# run database migrations
+     	(>&2 echo "Attempting to run database migrations...")
+     	ssh $SERVER_USERNAME@$SERVER_IP "php $SERVER_SITE_PATH/releases/$DIRECTORY_NAME/artisan migrate --env=staging"
+    else
+	(>&2 echo "You chose not to run the database migrations...")
+    fi
+fi
 ```
 
 - Kiểm tra số nguyên tố
